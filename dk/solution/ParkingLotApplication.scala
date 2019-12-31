@@ -33,6 +33,7 @@ class ParkingLot {
     def park(reg: String): (Boolean, Int) = {
         var foundSlot: Boolean = false
         var slotNo: Int = -1
+
         breakable {
             for (i <- 0 to size - 1) {
                 if (parked(i) == null) {
@@ -43,15 +44,18 @@ class ParkingLot {
                 }
             }
         }
+
         return (foundSlot, slotNo)
     }
 
     def leave(reg: String, hours: Int): (Boolean, Int, Int) = {
         var vehicleIdx: Int = parked.indexOf(reg, 0)
+
         if (vehicleIdx < 0) {
             return (false, -1, -1)
         }
         parked(vehicleIdx) = null
+
         return (true, vehicleIdx + 1, calc_charge(hours))
     }
 
@@ -145,9 +149,10 @@ class Connector {
         cmdInterface.setConnector(this)
         cmdInterface.start()
     }
-    //public
+
     def dispatchCommand(command: String, params: Array[String]): String = {
         var returnString: String = ""
+
         command match {
             case "status" => {
                 var status: Array[(Int, String)] = this.parkingLot.status()
@@ -158,6 +163,7 @@ class Connector {
                 }
                 returnString = returnString.trim()
             }
+
             case "park" => {
                 var (success: Boolean, slotNo: Int) = this.parkingLot.park(params(0))
                 if (!success)
@@ -165,6 +171,7 @@ class Connector {
                 else
                     returnString = Messages.slotAllocated.format(slotNo)
             }
+
             case "leave" => {
                 var (success: Boolean, slotNo: Int, charge: Int) = this.parkingLot.leave(params(0), params(1).toInt)
 
@@ -173,6 +180,7 @@ class Connector {
                 else
                     returnString = Messages.vehicleNotFound.format(params(0))
             }
+
             case "create_parking_lot" | "c" => {
                 var size: Int = params(0).toInt
                 this.parkingLot.create(size)
@@ -180,19 +188,16 @@ class Connector {
             }
         }
 
-        return returnString
-        
+        return returnString        
     }
 }
 
 class Application {
     var connector: Connector = new Connector()
     def start() {
-        debugger.debug("App ctor")
         this.connector.connect()
     }
 }
-
 
 object ParkingLotApplication {
     def main(args: Array[String]) {
@@ -201,4 +206,3 @@ object ParkingLotApplication {
         app.start()
     }
 }
-
